@@ -1,0 +1,19 @@
+## Environment variables
+python-dotenv==1.0.0
+
+# ## Data science / ML
+# pandas==2.1.1
+# matplotlib==3.8.0
+# scipy
+# opencv-python==4.8.1.78
+# pytesseract==0.3.10
+# torch==2.1.0
+# tensorflow==2.14.0
+# scipy==1.11.3
+
+# ## API integrations
+# requests==2.31.0
+
+# ## Document handling
+# openpyxl==3.1.2
+# pypdf==3.0.0
