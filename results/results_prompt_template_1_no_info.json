@@ -1,0 +1,272 @@
+[
+    {
+        "Question": "Which is the most popular voting method for Hall of Fame in 2000?",
+        "Generated": {
+            "openai_turbo": "select voting_method from hall_of_fame where year = 2000 group by voting_method order by count(*) desc limit 1;",
+            "mistral_small": "select voting_method, count(*) as popularity from voting where year = 2000 group by voting_method order by popularity desc limit 1;",
+            "mistral_medium": "select voting_method from hall_of_fame where year = 2000 group by voting_method order by count(*) desc limit 1;",
+            "sql_coder": "select v.method_name from vote_methods as v join votes as w on v.id = w.vote_method_id where year(w.voting_date) = 2000 and method_type_code = \"h\" group by v.method_name order by count(*) desc limit 1;"
+        },
+        "Ground truth": "SELECT votedby FROM hall_of_fame WHERE yearid = \"2000\" GROUP BY votedby ORDER BY count(*) DESC LIMIT 1"
+    },
+    {
+        "Question": "How many players weigh over 200 pounds?",
+        "Generated": {
+            "openai_turbo": "select count(*) from players where weight > 200;",
+            "mistral_small": "select count(*) from players where weight > 200;",
+            "mistral_medium": "select count(*) from players where weight > 200;",
+            "sql_coder": "select count(*) from player where weight > 200;"
+        },
+        "Ground truth": "SELECT count(*) FROM player WHERE weight > 200"
+    },
+    {
+        "Question": "Who is the winner of Rookie of the Year in 2010?",
+        "Generated": {
+            "openai_turbo": "select player_name from players join awards on players.player_id = awards.player_id where awards.award_name = \"rookie of the year\" and awards.year = 2010;",
+            "mistral_small": "select player_name from basketball_awards where award_name = \"rookie of the year\" and year = 2010;",
+            "mistral_medium": "select name from players join awards on players.player_id = awards.player_id where award_type = \"rookie of the year\" and year = 2010;",
+            "sql_coder": "select \"winner\" from \"awards\" where \"year\" = \"2010\" and \"category\" ilike \"%rookie%of%the%year%\";"
+        },
+        "Ground truth": "SELECT player_id FROM player_award WHERE year = 2010 AND award_id = \"Rookie of the Year\""
+    },
+    {
+        "Question": "Who is the highest paid player since 2010?",
+        "Generated": {
+            "openai_turbo": "select player_name from players where year >= 2010 order by salary desc limit 1;",
+            "mistral_small": "select max(salary) from players where year_signing >= 2010;",
+            "mistral_medium": "select max(player_salary) from players where signing_year >= 2010",
+            "sql_coder": "select max(salary) as max_salary from players where to_date(contract_start,\"yyyy-mm-dd\") > \"2010-01-01\";"
+        },
+        "Ground truth": "SELECT player_id FROM salary WHERE year >= 2010 ORDER BY salary DESC LIMIT 1"
+    },
+    {
+        "Question": "What are the salaries of players who have ever enter hall of fame?",
+        "Generated": {
+            "openai_turbo": "select salary from players inner join hall_of_fame on players.id = hall_of_fame.player_id",
+            "mistral_small": "select players.salary from players join hall_of_fame on players.id = hall_of_fame.player_id;",
+            "mistral_medium": "select salary from players where player_id in ( select player_id from hall_of_fame );",
+            "sql_coder": "select p.first_name, p.last_name, to_char(s.salary,\"9999d99\") as salary from player p join season s on p.playerid = s.playerid and s.season = max(s.season) where p.hall_of_fame_inducted = \"yes\";"
+        },
+        "Ground truth": "SELECT T2.salary FROM salary as T2 JOIN hall_of_fame as T1 ON T1.player_id = T2.player_id WHERE T1.inducted = \"Y\""
+    },
+    {
+        "Question": "What are the minimum votes needed to enter hall of fame for each year since 1871?",
+        "Generated": {
+            "openai_turbo": "select min(votes) from hall_of_fame where year >= 1871 group by year;",
+            "mistral_small": "select year, min(votes_needed) from hall_of_fame group by year;",
+            "mistral_medium": "select year, min(votes) as min_votes from hall_of_fame where year >= 1871 group by year order by year;",
+            "sql_coder": "select v.year, min(v.voter_id) as min_voter_id from vote v group by v.year;"
+        },
+        "Ground truth": "SELECT min(votes), yearid FROM hall_of_fame WHERE inducted = \"Y\" AND yearid >= 1871 GROUP BY yearid"
+    },
+    {
+        "Question": "What are the salaries in National League?",
+        "Generated": {
+            "openai_turbo": "select salary from nationalleague",
+            "mistral_small": "select salaries from baseball where league = \"national league\";",
+            "mistral_medium": "select players.name, salaries.amount from players join teams on players.team_id = teams.id join leagues on teams.league_id = leagues.id join salaries on players.id = salaries.player_id where leagues.name = \"national league\";",
+            "sql_coder": "select national_league.salary from national_league;"
+        },
+        "Ground truth": "SELECT salary FROM salary WHERE league_id = \"NL\""
+    },
+    {
+        "Question": "What are the salaries in American League?",
+        "Generated": {
+            "openai_turbo": "select salary from employees where league = \"american league\"",
+            "mistral_small": "select salaries from baseball where league = \"american league\";",
+            "mistral_medium": "select player_name, salary from players where league = \"american league\";",
+            "sql_coder": "select avg(salary) from american_league;"
+        },
+        "Ground truth": "SELECT salary FROM salary WHERE league_id = \"AL\""
+    },
+    {
+        "Question": "Which birth place has the most player awards?",
+        "Generated": {
+            "openai_turbo": "select birth_place, count(*) as num_player_awards from player where player_awards > 0 group by birth_place order by num_player_awards desc limit 1;",
+            "mistral_small": "select birth_place, count(*) as num_awards from player_awards group by birth_place order by num_awards desc limit 1;",
+            "mistral_medium": "select birth_place, count(*) as total_awards from players join player_awards on players.player_id = player_awards.player_id group by birth_place order by total_awards desc limit 1;",
+            "sql_coder": "given sql allow: create table birth_place (id serial primary key, name varchar(255)); create index idx_birth_place_name on birth_place using btree (name); create table award (id serial primary key, player_id int references players(id), birth_place_id int references birth_place(id));"
+        },
+        "Ground truth": "SELECT birth_country FROM player as T1 JOIN player_award as T2 ON T1.player_id = T2.player_id GROUP BY T1.birth_country ORDER BY count(*) DESC LIMIT 1"
+    },
+    {
+        "Question": "What are the birth places of players won on hall of fame since 1871?",
+        "Generated": {
+            "openai_turbo": "select birth_place from players where hall_of_fame = \"y\" and year >= 1871;",
+            "mistral_small": "``` select birth_place from hall_of_fame where year_of_induction >= 1871; ```",
+            "mistral_medium": "select birth_place from players where player_id in ( select player_id from hall_of_fame where induction_year >= 1871 ) order by birth_place;",
+            "sql_coder": "select p.player_name, b.birthplace from player as p join birth as b on p.birthdate = b.birthdate where p.hall_of_fame_inducted = true and extract(year from p.birthdate) >= 1871;"
+        },
+        "Ground truth": "SELECT T1.birth_country FROM hall_of_fame as T2 JOIN player as T1 ON T1.player_id = T2.player_id WHERE T2.inducted = \"Y\" AND T2.yearid >= 1871"
+    },
+    {
+        "Question": "Which award has the highest player's salary?",
+        "Generated": {
+            "openai_turbo": "select award from players order by salary desc limit 1;",
+            "mistral_small": "select award, max(player_salary) from table_name group by award;",
+            "mistral_medium": "select award_name from award join player on award.award_id = player.award_id join contract on player.player_id = contract.player_id group by award_name order by max(contract.salary) desc limit 1;",
+            "sql_coder": "select max(salary) as max_salary from players where position = \"coach\";"
+        },
+        "Ground truth": "SELECT award_id FROM player_award as T1 JOIN salary as T2 ON T1.player_id = T2.player_id GROUP BY T1.award_id ORDER BY avg(T2.salary) DESC LIMIT 1"
+    },
+    {
+        "Question": "What were the years when any special elections happened in hall of fame?",
+        "Generated": {
+            "openai_turbo": "select year from hall_of_fame where special_election = true;",
+            "mistral_small": "select \"year\" from \"specialelections\" where \"location\" = \"hall of fame\";",
+            "mistral_medium": "select distinct extract(year from event_date) as year from hall_of_fame_events where event_type = \"special election\";",
+            "sql_coder": "select distinct year_id from year_election where election_type_code = \"s\" and description ilike \"%hall%of%fame%\";"
+        },
+        "Ground truth": "SELECT DISTINCT yearid FROM hall_of_fame WHERE needed_note != \"\""
+    },
+    {
+        "Question": "Top 10 countries with the most hall of fame players",
+        "Generated": {
+            "openai_turbo": "select country, count(*) as num_players from players where hall_of_fame = true group by country order by num_players desc limit 10;",
+            "mistral_small": "``` select country, count(*) as num_halloffame from players where is_halloffame = true group by country order by num_halloffame desc limit 10; ```",
+            "mistral_medium": "select top 10 country, count(*) as number_of_hof_players from hall_of_fame_players group by country order by number_of_hof_players desc;",
+            "sql_coder": "select c.name as country_name, count(p.player_id) as player_count from country c join team t on c.code = t.country_code join player p on t.team_id = p.team_id where t.hall_of_fame_inducted = true group by c.name order by player_count desc, c.name asc limit 10;"
+        },
+        "Ground truth": "SELECT T1.birth_country FROM player as T1 JOIN hall_of_fame as T2 ON T1.player_id = T2.player_id WHERE T2.inducted = \"Y\" GROUP BY T1.birth_country ORDER BY count(*) DESC LIMIT 10"
+    },
+    {
+        "Question": "For every award, who is the youngest winner?",
+        "Generated": {
+            "openai_turbo": "select winner from awards order by age asc limit 1;",
+            "mistral_small": "select award, min(age) as youngest_age, min(winner) keep (dense_rank first order by age) as youngest_winner from winners group by award;",
+            "mistral_medium": "select awards.award_name, winners.winner_name, min(winners.winner_age) as youngest_age from awards join winners on awards.award_id = winners.award_id group by awards.award_name, winners.winner_name order by youngest_age asc;",
+            "sql_coder": "select awardee_name, min(age) as min_age from awards group by awardee_category;"
+        },
+        "Ground truth": "SELECT T1.player_id, T1.award_id , min(T1.year - T2.birth_year) FROM player_award as T1 JOIN player as T2 ON T1.player_id = T2.player_id GROUP BY T1.award_id"
+    },
+    {
+        "Question": "For every award, who is the oldest winner?",
+        "Generated": {
+            "openai_turbo": "select award, max(age) as oldest_winner from winners group by award;",
+            "mistral_small": "select award, max(age) as max_age, winner from winners group by award;",
+            "mistral_medium": "select awards.award_name, max(winners.winner_age) as max_age, max(winners.winner_name) as oldest_winner from awards join winners on awards.award_id = winners.award_id group by awards.award_name;",
+            "sql_coder": "select awardee_id, max(age) as max_age from awards group by awardee_id;"
+        },
+        "Ground truth": "SELECT T1.player_id, T1.award_id , max(T1.year - T2.birth_year) FROM player_award as T1 JOIN player as T2 ON T1.player_id = T2.player_id GROUP BY T1.award_id"
+    },
+    {
+        "Question": "Top 10 teams with the most hall of fame players",
+        "Generated": {
+            "openai_turbo": "select teams.team_name from teams inner join players on teams.team_id = players.team_id where players.hall_of_fame = \"yes\" group by teams.team_name order by count(players.hall_of_fame) desc limit 10;",
+            "mistral_small": "``` select team, count(*) as hall_of_fame_players from hall_of_fame group by team order by hall_of_fame_players desc limit 10; ```",
+            "mistral_medium": "select t.**, count(hof.player_id) as num_hof_players from teams t join hall_of_fame hof on t.team_id = hof.team_id group by t.** order by num_hof_players desc limit 10;",
+            "sql_coder": "select t.name as team_name, count(p.player_id) as player_count from teams t join players p on t.team_id = p.team_id where p.hof = true group by t.name order by player_count desc nulls last limit 10;"
+        },
+        "Ground truth": "SELECT T2.team_id FROM hall_of_fame as T1 JOIN salary as T2 ON T1.player_id = T2.player_id AND T1.yearid = T2.year WHERE T1.inducted = \"Y\" GROUP BY T2.team_id ORDER BY count(*) DESC LIMIT 10"
+    },
+    {
+        "Question": "Average lifespan of hall of fame players",
+        "Generated": {
+            "openai_turbo": "select avg(lifespan) from hall_of_fame_players;",
+            "mistral_small": "select avg(age) from players join hall_of_fame on players.id = hall_of_fame.player_id;",
+            "mistral_medium": "select avg(lifespan) from players where hall_of_fame = true;",
+            "sql_coder": "select avg(lifespan) as average_lifespan from halloffame_play where year(birthdate) = 1950;"
+        },
+        "Ground truth": "SELECT avg(T1.death_year - T1.birth_year) FROM player as T1 JOIN hall_of_fame as T2 ON T1.player_id = T2.player_id WHERE T2.inducted = \"Y\""
+    },
+    {
+        "Question": "For award winners, what's average weight for each position",
+        "Generated": {
+            "openai_turbo": "? select avg(weight) from players where award_winner = true group by position;",
+            "mistral_small": "select position, avg(weight) from award_winners group by position;",
+            "mistral_medium": "select position, avg(weight) from awards where award = \"winner\" group by position;",
+            "sql_coder": "? please provide sql to generate a table with each winner\"s name and average rank score. given a list of names and their positions, write an sql query to calculate the average rank score for each person."
+        },
+        "Ground truth": "SELECT avg(T1.weight) FROM player as T1 JOIN player_award as T2 ON T1.player_id = T2.player_id GROUP BY notes"
+    },
+    {
+        "Question": "For award winners, which position that has the most hall of fame players?",
+        "Generated": {
+            "openai_turbo": "select position, count(*) as num_players from award_winners where hall_of_fame = \"y\" group by position order by num_players desc limit 1;",
+            "mistral_small": "select position, count(*) as hall_of_fame_count from awards join players on awards.player_id = players.player_id where is_hall_of_fame = true group by position order by hall_of_fame_count desc limit 1;",
+            "mistral_medium": "select position from award_winners where player_id in ( select player_id from hall_of_fame ) group by position order by count(*) desc limit 1;",
+            "sql_coder": "select t.team from player p join hoft h on p.player_id = h.player_id join team t on p.team = t.team group by t.team having count(h.player_id) > 0 order by count(h.player_id) desc nulls last;"
+        },
+        "Ground truth": "SELECT T2.notes FROM hall_of_fame as T1 JOIN player_award as T2 ON T1.player_id = T2.player_id WHERE T1.inducted = \"Y\" GROUP BY notes ORDER BY count(*) DESC LIMIT 1"
+    },
+    {
+        "Question": "Which player get the highest score in 1971?",
+        "Generated": {
+            "openai_turbo": "select player, max(score) from scores where year = 1971;",
+            "mistral_small": "select player, score from games where year = 1971 order by score desc limit 1;",
+            "mistral_medium": "select player, max(score) as max_score from scores where year = 1971 group by player order by max_score desc limit 1;",
+            "sql_coder": "select max(points) as max_points from season_stats where year = 1971;"
+        },
+        "Ground truth": "SELECT player_id FROM player_award_vote WHERE year = \"1971\" ORDER BY points_won DESC LIMIT 1"
+    },
+    {
+        "Question": "Which month that players were born has the highest likelihood to be elected as hall of fame?",
+        "Generated": {
+            "openai_turbo": "select to_char(birthdate, \"month\") as birth_month, count(*) as num_hof_inductees from players where hall_of_fame = true group by birth_month order by num_hof_inductees desc limit 1;",
+            "mistral_small": "select player_birth_month as month, count(*) / (select count(*) from hall_of_fame) as likelihood from hall_of_fame join players on hall_of_fame.player_id = players.player_id group by 1 order by 2 desc limit 1;",
+            "mistral_medium": "select extract(month from birth_date) as birth_month, count(*) as player_count, count(*) filter (where is_hall_of_fame = true) / count(*) as hall_of_fame_ratio from players group by birth_month order by hall_of_fame_ratio desc limit 1;",
+            "sql_coder": "select month, probability from player_months) as subquery;"
+        },
+        "Ground truth": "SELECT T1.birth_month FROM player as T1 JOIN hall_of_fame as T2 ON T1.player_id = T2.player_id WHERE T2.inducted = \"Y\" GROUP BY T1.birth_month ORDER BY count(*) DESC LIMIT 1"
+    },
+    {
+        "Question": "Which league has the most player awarded in 2006?",
+        "Generated": {
+            "openai_turbo": "select league from players where year = 2006 group by league order by count(*) desc limit 1;",
+            "mistral_small": "select league, count(player) as num_of_awards from awards where year = 2006 group by league order by num_of_awards desc limit 1;",
+            "mistral_medium": "select league_name from players join leagues on players.league_id = leagues.league_id join awards on players.player_id = awards.player_id where awards.award_year = 2006 group by league_name order by count(*) desc limit 1;",
+            "sql_coder": "select l.name as league_name, count(*) as total_players from players p join teams t on p.team_id = t.team_id join leagues l on t.league_id = l.league_id where year(p.birthdate) = 1986 group by l.name order by total_players desc limit 1;"
+        },
+        "Ground truth": "SELECT league_id FROM player_award WHERE year = \"2006\" GROUP BY league_id ORDER BY count(*) DESC LIMIT 1"
+    },
+    {
+        "Question": "What defense position the player ID willite01 is?",
+        "Generated": {
+            "openai_turbo": "select position from defense where player_id = \"willite01\";",
+            "mistral_small": "select defense_position from players where player_id = \"willite01\";",
+            "mistral_medium": "select defense_position from players where player_id = \"willite01\";",
+            "sql_coder": "select defense_position from players where id = \"willie01\""
+        },
+        "Ground truth": "SELECT DISTINCT notes FROM player_award WHERE player_id = \"willite01\""
+    },
+    {
+        "Question": "How many players were awarded more than ten times?",
+        "Generated": {
+            "openai_turbo": "select count(*) from players where awards > 10;",
+            "mistral_small": "select count(*) from ( select player_id from awards group by player_id having count(*) > 10 ) subquery;",
+            "mistral_medium": "select count(*) from ( select player_id from awards group by player_id having count(*) > 10 ) as players_with_more_than_ten_awards;",
+            "sql_coder": "given a table called_awarding containing the following columns: player_id, award_count return the number of players who have been awarded more than 10 times."
+        },
+        "Ground truth": "SELECT count(*) FROM (SELECT player_id FROM player_award GROUP BY player_id HAVING count(*) > 10)"
+    },
+    {
+        "Question": "Which city the most players were born?",
+        "Generated": {
+            "openai_turbo": "select city, count(*) as num_players from players group by city order by num_players desc limit 1;",
+            "mistral_small": "select city from players group by city order by count(*) desc limit 1;",
+            "mistral_medium": "select city, count(player_id) as player_count from players group by city order by player_count desc limit 1;",
+            "sql_coder": "select birth_location, count(*) as player_count, row_number() over (partition by birth_location order by count(*) desc) as rn from player group by birth_location) as subquery where rn = 1;"
+        },
+        "Ground truth": "SELECT birth_city FROM player GROUP BY birth_city ORDER BY count(*) DESC LIMIT 1"
+    },
+    {
+        "Question": "What is the average weight of players who were awarded third-base man in TSN all-star award?",
+        "Generated": {
+            "openai_turbo": "select avg(weight) from players where award = \"tsn all-star award\" and position = \"third-base man\"",
+            "mistral_small": "select avg(weight) from players where position = \"third-base\" and has_tsn_all_star = true;",
+            "mistral_medium": "select avg(weight) from players where award = \"tsn all-star\" and position = \"third-base man\";",
+            "sql_coder": "given a table called_info (player_id, first_name, last_name, position) and an awards table (awardd_to, player_id), return the avg(weight) for those with a third base award."
+        },
+        "Ground truth": "SELECT avg(T1.weight) FROM player as T1 JOIN player_award as T2 ON T1.player_id = T2.player_id WHERE T2.award_id = \"TSN All-Star\" AND notes = \"3B\""
+    },
+    {
+        "Question": "Who is the player had the highest salary in 2015?",
+        "Generated": {
+            "openai_turbo": "select player from salary_table where year = 2015 order by salary desc limit 1;",
+            "mistral_small": "select player_name, salary from players where year = 2015 order by salary desc limit 1;",
+            "mistral_medium": "select player_name from players where salary = ( select max(salary) from players where year = 2015 );",
+            "sql_coder": "select max(salary) as max_salary from players where year(birthdate) = 2015;"
+        },
+        "Ground truth": "SELECT player_id FROM salary WHERE year = \"2015\" ORDER BY salary DESC LIMIT 1"
+    }
+]

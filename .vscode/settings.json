@@ -20,4 +20,12 @@
     "[json]": {
         "editor.defaultFormatter": "vscode.json-language-features"
     },
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "history_of_baseball",
+            "database": "${workspaceFolder:nl_to_sql_challenge}/data/history_of_baseball.sqlite"
+        }
+    ],
 }
