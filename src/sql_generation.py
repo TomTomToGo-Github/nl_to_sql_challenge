@@ -181,24 +181,3 @@ path_results = Path("results")
 name_results = f'results_{prompt_template_filename.stem}_{int(time.time())}.json'
 with open(path_results / name_results, 'w', encoding='utf-8') as f:
     f.write(json.dumps(question_generation_list, indent=4, ensure_ascii=False))
-
-
-## Next and final steps
--> load all my queries into the evaluation plot
--> compute scrores -> how many yielded better results (1 if result ok. else -> maximum of .5 if block structure and elements is similar)
--> implement the template with limiting the tables and adding the schema
-
--> compare and see if improved
-
--> final step -> implement RAG to find these tables?
-
--> last -> select winning model and templating strategy and think about improvements:
-        - model side with finetuning or prompt augmentation
-        - evaluation side
-        - CI/CD -> how can The results be used automatically?
-        
-        in theory it makes sense to flatten out the parsed sql and insert
-        it into a fine tuning process.
-        
-        
-        
